@@ -5,13 +5,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # Carga las variables del .env de la raíz del proyecto sin sobrescribir las del sistema.
-load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
+load_dotenv(Path(__file__).resolve().parents[2] / ".env.example", override=False)
 
 
 class Settings(BaseSettings):
     app_name: str = "codigo-cafe-api"
     environment: str = "local"
     api_prefix: str = "/api/v1"
+    database_url: str = ""
     mysql_host: str = "localhost"
     mysql_port: int = 3306
     mysql_database: str = "codigo_cafe"

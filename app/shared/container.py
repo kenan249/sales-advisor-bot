@@ -3,6 +3,7 @@ from app.adapters.outbound.ai.openai_adapter import OpenAIAdapter
 from app.adapters.outbound.messaging.fake_whatsapp import FakeWhatsAppAdapter
 from app.adapters.outbound.repositories.fake_coffee import FakeCoffeeRepository
 from app.adapters.outbound.repositories.fake_conversation import FakeConversationRepository
+from app.adapters.outbound.repositories.coffee_repository import CoffeeRepository
 from app.application.services.intent_router import IntentRouter
 from app.application.services.message_handler import MessageHandler
 from app.application.use_cases.search_coffee import SearchCoffeeUseCase
@@ -13,6 +14,7 @@ from app.application.use_cases.create_order import CreateOrderUseCase
 from app.application.use_cases.get_order_status import GetOrderStatusUseCase
 from app.domain.conversation.models import IntentType
 from app.shared.config import settings
+from app.shared.database import create_session_factory
 
 def build_message_handler():
     ai = (
@@ -20,8 +22,13 @@ def build_message_handler():
         if settings.openai_api_key
         else FakeAIAdapter()
     )
+    coffee_repository = (
+        CoffeeRepository(create_session_factory(settings.database_url))
+        if settings.database_url
+        else FakeCoffeeRepository()
+    )
     handlers = {
-        IntentType.SEARCH_COFFEE: SearchCoffeeUseCase(FakeCoffeeRepository()),
+        IntentType.SEARCH_COFFEE: SearchCoffeeUseCase(coffee_repository),
         IntentType.GET_RECIPE: GetRecipeUseCase(),
         IntentType.ADD_TO_CART: AddToCartUseCase(),
         IntentType.GET_CART: GetCartUseCase(),
